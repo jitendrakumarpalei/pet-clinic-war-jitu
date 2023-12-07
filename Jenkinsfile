@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage ('clone') {
             steps {
-                git branch: 'main', url: ''
+                git branch: 'main', url: 'https://github.com/jitendrakumarpalei/pet-clinic-war-jitu.git'
                 echo ${env.WORKSPACE}
             }
         }
