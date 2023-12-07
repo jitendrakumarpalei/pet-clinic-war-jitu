@@ -35,7 +35,6 @@ pipeline {
                 echo "My workspace is: ${env.WORKSPACE}"
                 sh "cd ${env.WORKSPACE}/target"
                 sh "ls -lrt ${env.WORKSPACE}/target"
-                sh "ps -ef | grep spring-petclinic-2.3.1-${env.BUILD_ID}.war"
             }
         }
         stage ('s3-upload') {
