@@ -13,6 +13,7 @@ pipeline {
         stage ('clone') {
             steps {
                 git branch: 'main', url: 'https://github.com/Azure-Samples/pet-clinic-war.git'
+                echo "${env.WORKSPACE}
             }
         }
         stage ('build') {
