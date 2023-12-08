@@ -16,7 +16,7 @@ aws s3api put-object \
   --key "$folder_name/"
 
 # Upload files to the created folder
-file1="${env.WORKSPACE}/target/${ARTIFACTS_NAME}"
+file1="/var/lib/jenkins/workspace/altsqure3/target/spring-petclinic-2.3.1.BUILD-SNAPSHOT.war"
 
 aws s3 cp "$file1" "s3://$bucket_name/$folder_name/"
 
