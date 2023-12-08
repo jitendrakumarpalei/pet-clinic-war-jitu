@@ -1,58 +1,98 @@
 pipeline {
-    agent any
-tools {
-    maven 'maven'
-}
-    environment {
-       AWS_ACCESS_KEY_ID = credentials('s3-upload')
-        AWS_SECRET_ACCESS_KEY = credentials('s3-upload')
-        ARTIFACTS_NAME = "hello-1.0.war"
+    agent any 
+    tools {
+        maven 'maven'
     }
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('s3-upload')
+        AWS_SECRET_ACCESS_KEY = credentials('s3-upload')
+        ARTIFACTS_NAME = "spring-petclinic-2.3.1.BUILD-SNAPSHOT.war"
+    } 
 
     stages {
-        stage('CheckOut') {
+        stage ('clone') {
             steps {
-                git 'https://github.com/jitendrakumarpalei/jitendra-repo.git/'
+                git branch: 'main', url: 'https://github.com/Azure-Samples/pet-clinic-war.git'
             }
         }
-        stage('Build') {
+        stage ('build') {
             steps {
-              sh "mvn clean install"
+                sh ("mvn clean install")
             }
         }
-        stage("Archieve Artifacts") {
+        stage ('test') {
             steps {
-              archiveArtifacts artifacts: '**/*.war', followSymlinks: false
+                sh "mvn test"
+            }
+        }
+        stage ('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: '**/*.war', followSymlinks: false
             }
         }
         stage("Finding Artifacts") {
             steps {
-              echo "My workspace is: ${env.WORKSPACE}"
+                echo "My workspace is: ${env.WORKSPACE}"
                 sh "cd ${env.WORKSPACE}/target"
                 sh "ls -lrt ${env.WORKSPACE}/target"
-                sh "ps -ef | grep hello-1.0-${env.BUILD_ID}.war"
+                sh "ps -ef | grep spring-petclinic-2.3.1-${env.BUILD_ID}.war"
             }
         }
-        stage('S3-Upload') {
+        stage ('s3-upload') {
             steps {
                 sh "chmod +x ${env.WORKSPACE}/s3-upload.sh"
                 sh "./s3-upload.sh"
-            }  
-        }
-        stage('Deploy') {
+            }pipeline {
+    agent any 
+    tools {
+        maven 'maven'
+    }
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('s3-upload')
+        AWS_SECRET_ACCESS_KEY = credentials('s3-upload')
+        ARTIFACTS_NAME = "spring-petclinic-2.3.1.BUILD-SNAPSHOT.war"
+    } 
+
+    stages {
+        stage ('clone') {
             steps {
-                sh "cd /opt/tomcat/webapps"
-                sh "rm -rf *.war"
-                sh "cp -r ${env.WORKSPACE}/target/${ARTIFACTS_NAME} /opt/tomcat/webapps"
-                sh "/opt/tomcat/bin/shutdown.sh"
-                sh "/opt/tomcat/bin/startup.sh"
+                git branch: 'main', url: 'https://github.com/jitendrakumarpalei/pet-clinic-war-jitu.git'
+            }
+        }
+        stage ('build') {
+            steps {
+                sh ("mvn clean install")
+            }
+        }
+        stage ('test') {
+            steps {
+                sh "mvn test"
+            }
+        }
+        stage ('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: '**/*.war', followSymlinks: false
+            }
+        }
+        stage("Finding Artifacts") {
+            steps {
+                echo "My workspace is: ${env.WORKSPACE}"
+                sh "cd ${env.WORKSPACE}/target"
+                sh "ls -lrt ${env.WORKSPACE}/target"
+            }
+        }
+        stage ('s3-upload') {
+            steps {
+                sh "chmod +x ${env.WORKSPACE}/s3-upload.sh"
+                sh "./s3-upload.sh"
             }
         }
         stage('change directory') {
             steps {
-                sh "cp spring-petclinic-2.3.1.BUILD-SNAPSHOT.war petclinic.tar"
+                sh "Copy-Item -/var/lib/jenkins/workspace/altsqure3 C:cp spring-petclinic-2.3.1.BUILD-SNAPSHOT.war.txt -Destination C:\target.tar\"
+
             }
         }
+
     }
 }
-        
