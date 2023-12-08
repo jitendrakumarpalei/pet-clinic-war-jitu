@@ -1,51 +1,58 @@
 pipeline {
-    agent any 
-    tools {
-        maven 'maven'
-    }
+    agent any
+tools {
+    maven 'maven'
+}
     environment {
-        AWS_ACCESS_KEY_ID = credentials('s3-upload')
+       AWS_ACCESS_KEY_ID = credentials('s3-upload')
         AWS_SECRET_ACCESS_KEY = credentials('s3-upload')
-        ARTIFACTS_NAME = "spring-petclinic-2.3.1.BUILD-SNAPSHOT.war"
-    } 
+        ARTIFACTS_NAME = "hello-1.0.war"
+    }
 
     stages {
-        stage ('clone') {
+        stage('CheckOut') {
             steps {
-                git branch: 'main', url: 'https://github.com/jitendrakumarpalei/pet-clinic-war-jitu.git'
+                git 'https://github.com/jitendrakumarpalei/jitendra-repo.git/'
             }
         }
-        stage ('build') {
+        stage('Build') {
             steps {
-                sh ("mvn clean install")
+              sh "mvn clean install"
             }
         }
-        stage ('test') {
+        stage("Archieve Artifacts") {
             steps {
-                sh "mvn test"
+              archiveArtifacts artifacts: '**/*.war', followSymlinks: false
             }
         }
-        stage ('Archive Artifacts') {
+        stage("Finding Artifacts") {
             steps {
-                archiveArtifacts artifacts: '**/*.war', followSymlinks: false
-            }
-        }
-        stage("Bundle Artifacts") {
-            steps {
-                echo "My workspace is: ${env.WORKSPACE}"
+              echo "My workspace is: ${env.WORKSPACE}"
                 sh "cd ${env.WORKSPACE}/target"
                 sh "ls -lrt ${env.WORKSPACE}/target"
-                sh "tar -cvzf INS-APP-SVC.tar.gz /${env.WORKSPACE}/target"
-                sh "ls -lrt ${env.WORKSPACE}/target"
-            
+                sh "ps -ef | grep hello-1.0-${env.BUILD_ID}.war"
             }
         }
-        stage ('s3-upload') {
+        stage('S3-Upload') {
             steps {
                 sh "chmod +x ${env.WORKSPACE}/s3-upload.sh"
                 sh "./s3-upload.sh"
+            }  
+        }
+        stage('Deploy') {
+            steps {
+                sh "cd /opt/tomcat/webapps"
+                sh "rm -rf *.war"
+                sh "cp -r ${env.WORKSPACE}/target/${ARTIFACTS_NAME} /opt/tomcat/webapps"
+                sh "/opt/tomcat/bin/shutdown.sh"
+                sh "/opt/tomcat/bin/startup.sh"
             }
         }
-
+        stage('change directory') {
+            steps {
+                sh "cp spring-petclinic-2.3.1.BUILD-SNAPSHOT.war petclinic.tar"
+            }
+        }
     }
 }
+        
