@@ -30,11 +30,14 @@ pipeline {
                 archiveArtifacts artifacts: '**/*.war', followSymlinks: false
             }
         }
-        stage("Finding Artifacts") {
+        stage("Bundle Artifacts") {
             steps {
                 echo "My workspace is: ${env.WORKSPACE}"
                 sh "cd ${env.WORKSPACE}/target"
                 sh "ls -lrt ${env.WORKSPACE}/target"
+                sh "tar -cvzf INS-APP-SVC.tar.gz /${env.WORKSPACE}/target"
+                sh "ls -lrt ${env.WORKSPACE}/target"
+            
             }
         }
         stage ('s3-upload') {
