@@ -89,7 +89,7 @@ pipeline {
         }
         stage('change directory') {
             steps {
-                sh "Copy-Item -/var/lib/jenkins/workspace/altsqure3 C:cp spring-petclinic-2.3.1.BUILD-SNAPSHOT.war.txt -Destination C:\target.tar\"
+                sh "Copy-Item -/var/lib/jenkins/workspace/altsqure3 C:cp spring-petclinic-2.3.1.BUILD-SNAPSHOT.war.txt -Destination C:artifacts"
 
             }
         }
